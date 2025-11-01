@@ -1,0 +1,11 @@
+# Foragis .gitignore
+__pycache__/
+*.pyc
+*.db
+foragis_env/logs.txt
+foragis_env/*.bak
+foragis_env/*.tmp
+foragis_env/*.log
+data/*.db
+.env
+foragis_env
