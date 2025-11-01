@@ -23,7 +23,7 @@ def generer_facture(consommation_id):
         volume = row[0]
         montant = volume * TARIF_UNITAIRE
         conn.execute(
-            "INSERT INTO factures (consommation_id, montant) VALUES (?, ?)",
+            "INSERT INTO factures (operation_id, montant_total) VALUES (?, ?)",
             (consommation_id, montant)
         )
         conn.commit()
@@ -32,7 +32,7 @@ def generer_facture(consommation_id):
 def lister_factures():
     with connect() as conn:
         cur = conn.execute(
-            "SELECT f.id, f.consommation_id, f.montant, f.paye, f.date_creation "
+            "SELECT f.id, f.operation_id, f.montant_total, f.statut, f.date_creation "
             "FROM factures f ORDER BY f.date_creation DESC"
         )
         rows = cur.fetchall()

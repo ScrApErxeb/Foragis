@@ -13,7 +13,7 @@ def init_table():
     print("✅ Table 'consommations' prête.")
 
 def ajouter_releve(compteur_id, mois, volume_m3):
-    try:
+    try: 
         with connect() as conn:
             conn.execute(
                 "INSERT INTO consommations (compteur_id, mois, volume_m3) VALUES (?, ?, ?)",
