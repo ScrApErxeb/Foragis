@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS paiements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    facture_id INTEGER NOT NULL,
+    montant REAL NOT NULL,
+    date_paiement TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (facture_id) REFERENCES factures(id)
+);
