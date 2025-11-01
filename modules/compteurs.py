@@ -1,5 +1,7 @@
 import sqlite3
 from pathlib import Path
+from core.audit_manager import audit_after_action
+
 
 DB_PATH = Path(__file__).resolve().parents[1] / "data" / "foragis.db"
 
@@ -20,6 +22,9 @@ def ajouter_abonne(nom, prenom, cnib, telephone):
         )
         conn.commit()
     print(f"Abonné ajouté : {nom} {prenom}")
+    audit_after_action(f"Abonné ajouté : {nom} {prenom}")
+
+
 
 def ajouter_compteur(numero, abonne_id):
     with connect() as conn:
@@ -29,7 +34,9 @@ def ajouter_compteur(numero, abonne_id):
         )
         conn.commit()
     print(f"Compteur {numero} lié à abonné {abonne_id}")
+    audit_after_action(f"Compteur {numero} lié à abonné {abonne_id}")
 
+    
 def lister_compteurs():
     with connect() as conn:
         cur = conn.execute("""

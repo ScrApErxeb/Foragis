@@ -1,4 +1,5 @@
 import sqlite3
+from core.audit_manager import audit_after_action
 from pathlib import Path
 from core.validator import (
     validate_id_exists,
@@ -37,6 +38,7 @@ def enregistrer_paiement():
         montant = float(input("Montant payé: "))
     except ValueError:
         print("❌ Entrée invalide.")
+        audit_after_action("❌ Entrée invalide.")
         return
 
     if not validate_id_exists("factures", facture_id):
@@ -49,6 +51,7 @@ def enregistrer_paiement():
         row = cur.fetchone()
         if not row:
             print("❌ Facture introuvable.")
+            audit_after_action(f"❌ Facture introuvable. ID: {facture_id}")
             return
 
         total = row[0]
@@ -58,6 +61,7 @@ def enregistrer_paiement():
 
         if montant > reste:
             print(f"⚠ Paiement refusé : montant ({montant}) dépasse le reste dû ({reste}).")
+            audit_after_action(f"⚠ Paiement refusé : montant ({montant}) dépasse le reste dû ({reste}). ID facture: {facture_id}")
             return
 
         conn.execute(
@@ -71,6 +75,7 @@ def enregistrer_paiement():
         conn.commit()
 
         print(f"✅ Paiement enregistré ({nouveau_total}/{total}). Statut = {statut}.")
+        audit_after_action(f"✅ Paiement enregistré pour facture {facture_id} ({nouveau_total}/{total}). Statut = {statut}.")
 
 def lister_paiements():
     with connect() as conn:

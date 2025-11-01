@@ -1,4 +1,5 @@
 import sqlite3
+from core.audit_manager import audit_after_action
 from pathlib import Path
 from core.validator import (
     validate_id_exists,
@@ -44,6 +45,7 @@ def ajouter_operation():
         montant = float(input("Montant: "))
     except ValueError:
         print("❌ Entrée invalide.")
+        audit_after_action("❌ Entrée invalide.")
         return
 
     if not validate_positive_amount(montant):
@@ -56,6 +58,7 @@ def ajouter_operation():
         )
         conn.commit()
     print("✅ Opération enregistrée.")
+    audit_after_action("✅ Opération enregistrée.")
 
 def enregistrer_paiement_op():
     try:
@@ -63,6 +66,8 @@ def enregistrer_paiement_op():
         montant = float(input("Montant payé: "))
     except ValueError:
         print("❌ Entrée invalide.")
+        audit_after_action("❌ Entrée invalide.")
+
         return
 
     if not validate_id_exists("operations", operation_id):
@@ -75,6 +80,7 @@ def enregistrer_paiement_op():
         row = cur.fetchone()
         if not row:
             print("❌ Opération introuvable.")
+            audit_after_action(f"❌ Opération introuvable. ID: {operation_id}")
             return
 
         total = row[0]
@@ -84,6 +90,7 @@ def enregistrer_paiement_op():
 
         if montant > reste:
             print(f"⚠ Paiement refusé : montant ({montant}) dépasse le reste dû ({reste}).")
+            audit_after_action(f"⚠ Paiement refusé : montant ({montant}) dépasse le reste dû ({reste}). ID opération: {operation_id}")
             return
 
         conn.execute(
@@ -95,6 +102,7 @@ def enregistrer_paiement_op():
         conn.execute("UPDATE operations SET etat=? WHERE id=?", (etat, operation_id))
         conn.commit()
         print(f"✅ Paiement enregistré ({nouveau_total}/{total}). État = {etat}.")
+        audit_after_action(f"✅ Paiement enregistré ({nouveau_total}/{total}). État = {etat}. ID opération: {operation_id}")
 
 def lister_operations():
     with connect() as conn:
@@ -108,7 +116,7 @@ def lister_operations():
         ORDER BY o.id DESC
         """):
             print(f"[{row[0]}] {row[1]} : {row[3]}/{row[2]} ({row[4]})")
-
+            
 def menu():
     print("=== Gestion des opérations ===")
     print("1. Init tables")

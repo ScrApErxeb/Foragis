@@ -1,4 +1,5 @@
 import sqlite3
+from core.audit_manager import audit_after_action
 from pathlib import Path
 from core.validator import (
     validate_id_exists,
@@ -29,6 +30,7 @@ def generer_facture(consommation_id):
         row = cur.fetchone()
         if not row:
             print("❌ Consommation introuvable.")
+            audit_after_action(f"Échec génération facture : consommation {consommation_id} introuvable")
             return
 
         volume = row[0]
@@ -42,6 +44,7 @@ def generer_facture(consommation_id):
         )
         conn.commit()
         print(f"✅ Facture créée pour consommation {consommation_id} → {montant} F CFA")
+        audit_after_action(f"Facture générée pour consommation {consommation_id} → {montant} F CFA")
 
 def lister_factures():
     with connect() as conn:
@@ -59,7 +62,8 @@ def marquer_paye(facture_id):
         conn.execute("UPDATE factures SET paye=1 WHERE id=?", (facture_id,))
         conn.commit()
     print(f"✅ Facture {facture_id} marquée comme payée.")
-
+    audit_after_action(f"Facture {facture_id} marquée comme payée.")
+    
 def menu_factures():
     print("=== Gestion des Factures ===")
     print("1. Init table")

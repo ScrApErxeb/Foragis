@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+from core.audit_manager import audit_after_action
 
 DB_PATH = Path(__file__).resolve().parents[1] / "data" / "foragis.db"
 
@@ -21,9 +22,12 @@ def ajouter_releve(compteur_id, mois, volume_m3):
             )
             conn.commit()
         print(f"Relevé ajouté : compteur={compteur_id}, mois={mois}, volume={volume_m3} m³")
+        audit_after_action(f"Relevé ajouté : compteur={compteur_id}, mois={mois}, volume={volume_m3} m³")
     except sqlite3.IntegrityError:
         print("⚠ Relevé déjà existant pour ce compteur et ce mois.")
+        audit_after_action(f"Échec ajout relevé : compteur={compteur_id}, mois={mois} (doublon)")
 
+        
 def lister_releves(compteur_id=None):
     with connect() as conn:
         if compteur_id:
