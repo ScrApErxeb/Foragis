@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+import sys
 
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "foragis.db"
 
@@ -99,7 +100,8 @@ def menu():
     elif choix == "3":
         lister_paiements()
     elif choix == "0":
-        return
+        print("Fermeture du système.")
+        sys.exit()
 
 if __name__ == "__main__":
     while True:

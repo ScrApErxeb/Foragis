@@ -1,4 +1,3 @@
-# core/audit.py
 import sqlite3
 from pathlib import Path
 from datetime import datetime
@@ -23,7 +22,6 @@ def check_factures_paiements(conn):
     cur = conn.cursor()
     log("=== Vérification des factures et paiements ===")
 
-    # Vérifie factures sans paiement
     cur.execute("""
         SELECT f.id FROM factures f
         LEFT JOIN paiements p ON f.id = p.facture_id
@@ -32,7 +30,6 @@ def check_factures_paiements(conn):
     for row in cur.fetchall():
         log(f"Facture #{row[0]} sans paiement enregistré", "WARN")
 
-    # Paiements sans facture valide
     cur.execute("""
         SELECT id, facture_id FROM paiements
         WHERE facture_id NOT IN (SELECT id FROM factures)
@@ -40,16 +37,17 @@ def check_factures_paiements(conn):
     for row in cur.fetchall():
         log(f"Paiement #{row[0]} orphelin (facture {row[1]} inexistante)", "WARN")
 
-    # Dépassements de paiement
     cur.execute("""
         SELECT f.id, f.montant_total, IFNULL(SUM(p.montant), 0)
         FROM factures f
         LEFT JOIN paiements p ON f.id = p.facture_id
         GROUP BY f.id
-        HAVING SUM(p.montant) > f.montant_total
     """)
-    for row in cur.fetchall():
-        log(f"⚠ Facture #{row[0]} dépassement : payé {row[2]} > dû {row[1]}", "ALERT")
+    for fid, total, paye in cur.fetchall():
+        if paye > total:
+            log(f"⚠ Facture #{fid} dépassement : payé {paye} > dû {total}", "ALERT")
+        elif 0 < paye < total:
+            log(f"⚠ Facture #{fid} partiellement payée : payé {paye}/{total}", "INFO")
 
     log("Vérification des factures terminée.\n")
 
@@ -58,33 +56,19 @@ def check_operations_paiements(conn):
     cur = conn.cursor()
     log("=== Vérification des opérations et paiements ===")
 
-    # Opérations sans paiement
-    cur.execute("""
-        SELECT o.id FROM operations o
-        LEFT JOIN paiements_operations po ON o.id = po.operation_id
-        WHERE po.id IS NULL
-    """)
-    for row in cur.fetchall():
-        log(f"Opération #{row[0]} sans paiement lié", "WARN")
-
-    # Paiements opérations sans opération
-    cur.execute("""
-        SELECT id, operation_id FROM paiements_operations
-        WHERE operation_id NOT IN (SELECT id FROM operations)
-    """)
-    for row in cur.fetchall():
-        log(f"Paiement opération #{row[0]} orphelin (operation {row[1]} inexistante)", "WARN")
-
-    # Dépassements
     cur.execute("""
         SELECT o.id, o.montant, IFNULL(SUM(po.montant), 0)
         FROM operations o
         LEFT JOIN paiements_operations po ON o.id = po.operation_id
         GROUP BY o.id
-        HAVING SUM(po.montant) > o.montant
     """)
-    for row in cur.fetchall():
-        log(f"⚠ Opération #{row[0]} dépassement : payé {row[2]} > dû {row[1]}", "ALERT")
+    for oid, total, paye in cur.fetchall():
+        if paye == 0:
+            log(f"Opération #{oid} sans paiement lié", "WARN")
+        elif paye > total:
+            log(f"⚠ Opération #{oid} dépassement : payé {paye} > dû {total}", "ALERT")
+        elif paye < total:
+            log(f"⚠ Opération #{oid} partiellement payée : payé {paye}/{total}", "INFO")
 
     log("Vérification des opérations terminée.\n")
 
