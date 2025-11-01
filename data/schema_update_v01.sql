@@ -13,3 +13,5 @@ CREATE TABLE IF NOT EXISTS compteurs (
     actif INTEGER DEFAULT 1,
     FOREIGN KEY (abonne_id) REFERENCES abonnes(id)
 );
+
+
