@@ -1,5 +1,10 @@
 import sqlite3
 from pathlib import Path
+from core.validator import (
+    validate_id_exists,
+    validate_positive_amount,
+    validate_schema_columns
+)
 
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "foragis.db"
 
@@ -41,6 +46,9 @@ def ajouter_operation():
         print("❌ Entrée invalide.")
         return
 
+    if not validate_positive_amount(montant):
+        return
+
     with connect() as conn:
         conn.execute(
             "INSERT INTO operations (type_operation, abonne_id, montant) VALUES (?, ?, ?)",
@@ -55,6 +63,11 @@ def enregistrer_paiement_op():
         montant = float(input("Montant payé: "))
     except ValueError:
         print("❌ Entrée invalide.")
+        return
+
+    if not validate_id_exists("operations", operation_id):
+        return
+    if not validate_positive_amount(montant):
         return
 
     with connect() as conn:

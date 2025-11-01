@@ -1,5 +1,10 @@
 import sqlite3
 from pathlib import Path
+from core.validator import (
+    validate_id_exists,
+    validate_positive_amount,
+    validate_schema_columns
+)
 
 DB_PATH = Path(__file__).resolve().parents[1] / "data" / "foragis.db"
 TARIF_UNITAIRE = 500  # par m³
@@ -14,20 +19,29 @@ def init_table():
     print("✅ Table 'factures' prête.")
 
 def generer_facture(consommation_id):
+    if not validate_schema_columns("consommations", ["id", "volume_m3"]):
+        return
+    if not validate_id_exists("consommations", consommation_id):
+        return
+
     with connect() as conn:
         cur = conn.execute("SELECT volume_m3 FROM consommations WHERE id=?", (consommation_id,))
         row = cur.fetchone()
         if not row:
             print("❌ Consommation introuvable.")
             return
+
         volume = row[0]
         montant = volume * TARIF_UNITAIRE
+        if not validate_positive_amount(montant):
+            return
+
         conn.execute(
             "INSERT INTO factures (operation_id, montant_total) VALUES (?, ?)",
             (consommation_id, montant)
         )
         conn.commit()
-        print(f"Facture créée pour consommation {consommation_id} → {montant} F CFA")
+        print(f"✅ Facture créée pour consommation {consommation_id} → {montant} F CFA")
 
 def lister_factures():
     with connect() as conn:
@@ -35,11 +49,12 @@ def lister_factures():
             "SELECT f.id, f.operation_id, f.montant_total, f.statut, f.date_creation "
             "FROM factures f ORDER BY f.date_creation DESC"
         )
-        rows = cur.fetchall()
-    for r in rows:
-        print(r)
+        for r in cur.fetchall():
+            print(r)
 
 def marquer_paye(facture_id):
+    if not validate_id_exists("factures", facture_id):
+        return
     with connect() as conn:
         conn.execute("UPDATE factures SET paye=1 WHERE id=?", (facture_id,))
         conn.commit()
