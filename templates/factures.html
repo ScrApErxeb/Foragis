@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Liste des Factures</h1>
+<table class="table table-striped">
+    <thead>
+        <tr><th>ID</th><th>Abonné</th><th>Montant</th><th>Statut</th></tr>
+    </thead>
+    <tbody>
+        {% for facture in factures %}
+        <tr>
+            <td>#{{ facture.id }}</td>
+            <td>{{ facture.abonne.nom }}</td>
+            <td>{{ facture.montant_total }} F</td>
+            <td><span class="badge bg-{{ 'success' if facture.statut == 'payé' else 'warning' }}">{{ facture.statut }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

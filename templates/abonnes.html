@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Liste des Abonnés</h1>
+<table class="table table-striped">
+    <thead>
+        <tr><th>Nom</th><th>Prénom</th><th>CNIB</th><th>Téléphone</th></tr>
+    </thead>
+    <tbody>
+        {% for abonne in abonnes %}
+        <tr>
+            <td>{{ abonne.nom }}</td>
+            <td>{{ abonne.prenom }}</td>
+            <td>{{ abonne.cnib }}</td>
+            <td>{{ abonne.telephone or 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

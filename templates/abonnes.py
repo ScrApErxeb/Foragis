@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Liste des Abonnés</h1>
+
+<div class="card shadow">
+    <div class="card-body">
+        {% if abonnes %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>CNIB</th>
+                        <th>Téléphone</th>
+                        <th>Date Inscription</th>
+                        <th>Compteurs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for abonne in abonnes %}
+                    <tr>
+                        <td>{{ abonne.id }}</td>
+                        <td>{{ abonne.nom }}</td>
+                        <td>{{ abonne.prenom }}</td>
+                        <td>{{ abonne.cnib }}</td>
+                        <td>{{ abonne.telephone or 'N/A' }}</td>
+                        <td>{{ abonne.date_inscription.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            {% for compteur in abonne.compteurs %}
+                            <span class="badge bg-info">{{ compteur.numero_compteur }}</span>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">Aucun abonné pour le moment.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

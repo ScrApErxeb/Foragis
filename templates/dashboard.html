@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Tableau de Bord</h1>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Abonnés Actifs</h5>
+                <h2 class="card-text">{{ stats.abonnes_actifs }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Factures Payées</h5>
+                <h2 class="card-text">{{ stats.factures_payees }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">En Attente</h5>
+                <h2 class="card-text">{{ stats.factures_impayees }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">Dernières Factures</h5>
+    </div>
+    <div class="card-body">
+        {% if dernieres_factures %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Abonné</th>
+                        <th>Compteur</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for facture in dernieres_factures %}
+                    <tr>
+                        <td>#{{ facture.id }}</td>
+                        <td>{{ facture.abonne.nom }} {{ facture.abonne.prenom }}</td>
+                        <td>{{ facture.compteur.numero_compteur if facture.compteur else 'N/A' }}</td>
+                        <td>{{ facture.montant_total }} F</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if facture.statut == 'payé' else 'warning' }}">
+                                {{ facture.statut }}
+                            </span>
+                        </td>
+                        <td>{{ facture.date_creation.strftime('%d/%m/%Y') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">Aucune facture pour le moment.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

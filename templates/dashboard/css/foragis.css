@@ -1,0 +1,21 @@
+/* static/css/foragis.css */
+:root {
+    --primary: #2E86AB;
+    --secondary: #A23B72;
+    --success: #28a745;
+    --warning: #ffc107;
+    --danger: #dc3545;
+}
+
+.foragis-navbar {
+    background: linear-gradient(135deg, var(--primary) 0%, #1B5299 100%);
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+}
+
+.stat-card {
+    border-left: 4px solid var(--primary);
+}

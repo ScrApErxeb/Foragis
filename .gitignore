@@ -8,4 +8,5 @@ foragis_env/*.tmp
 foragis_env/*.log
 data/*.db
 .env
+venv
 foragis_env

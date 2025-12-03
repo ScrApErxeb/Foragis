@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ title }}</h1>
+<form method="POST">
+    <div class="mb-3">
+        <label class="form-label">Numéro du compteur</label>
+        <input type="text" name="numero_compteur" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Abonné</label>
+        <select name="abonne_id" class="form-control" required>
+            <option value="">Sélectionner un abonné</option>
+            {% for abonne in abonnes %}
+            <option value="{{ abonne.id }}">{{ abonne.nom }} {{ abonne.prenom }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Localisation</label>
+        <textarea name="localisation" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox" name="actif" class="form-check-input" checked>
+        <label class="form-check-label">Compteur actif</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+</form>
+{% endblock %}
